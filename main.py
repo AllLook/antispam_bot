@@ -5,13 +5,16 @@ import time
 import key
 
 bot = telebot.TeleBot(key.token)
-stop_words = ["анкета", "ссылка", "уникальное предложение", "доход", "деньги", "быстрый доход", "халтура", "легкие деньги", "нужны деньги?", "нужны деньги"]
-user_stats = defaultdict(int)
+stop_words = ["анкета", "ссылка", "уникальное предложение", "доход", "деньги", "быстрый доход", "халтура",
+              "легкие деньги", "нужны деньги?", "нужны деньги"]
+user_stats = defaultdict(lambda: defaultdict(int))
 
 
 @bot.message_handler(commands=['start'])
 def start(message):
     bot.send_message(message.chat.id, "Привет! Я бот для управления чатом. Напиши /help, чтобы узнать, что я умею.")
+    if message.chat.id not in user_stats:
+        user_stats[message.chat.id] = defaultdict(int)
 
 
 @bot.message_handler(commands=['help'])
@@ -22,7 +25,7 @@ def help(message):
 
 @bot.message_handler(commands=['kick'])
 def kick_user(message):
-    if message.reply_to_message and user_stats[message.reply_to_message.from_user.id] >= 50:
+    if message.reply_to_message and user_stats[message.chat.id][message.reply_to_message.from_user.id] >= 50:
         chat_id = message.chat.id
         user_id = message.reply_to_message.from_user.id
         user_status = bot.get_chat_member(chat_id, user_id).status
@@ -82,7 +85,7 @@ def unmute_user(message):
 
 @bot.message_handler(func=lambda message: True)
 def check_message(message):
-    user_stats[message.from_user.id] += 1
+    user_stats[message.chat.id][message.from_user.id] += 1
     for word in stop_words:
         if word in message.text.lower():
             bot.send_message(message.chat.id,
