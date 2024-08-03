@@ -1,8 +1,12 @@
+import os
 import threading
 from collections import defaultdict
 import telebot
 import time
 import key
+import http.server
+import socketserver
+
 
 bot = telebot.TeleBot(key.token)
 stop_words = ["анкета", "ссылка", "уникальное предложение", "доход", "деньги", "быстрый доход", "халтура",
@@ -103,4 +107,15 @@ def warn_and_kick(message):
                      f"Пользователь {message.from_user.username} был удален из чата за подозрение в спаме")
 
 
-bot.infinity_polling(none_stop=True)
+def start_polling():
+    bot.infinity_polling(none_stop=True)
+
+if __name__ == '__main__':
+    threading.Thread(target=start_polling).start()
+
+    port = int(os.environ.get('PORT', 5000))
+    handler = http.server.SimpleHTTPRequestHandler
+    with socketserver.TCPServer(("", port), handler) as httpd:
+        print(f"Serving at port {port}")
+        httpd.serve_forever()
+
