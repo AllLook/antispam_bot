@@ -41,7 +41,7 @@ def kick_user(message):
 
 @bot.message_handler(commands=['mute'])
 def mute_user(message):
-    if message.reply_to_message and user_stats[message.reply_to_message.from_user.id] >= 50:
+    if message.reply_to_message and user_stats[message.chat.id][message.reply_to_message.from_user.id] >= 50:
         chat_id = message.chat.id
         user_id = message.reply_to_message.from_user.id
         user_status = bot.get_chat_member(chat_id, user_id).status
@@ -72,7 +72,7 @@ def mute_user(message):
 
 @bot.message_handler(commands=['unmute'])
 def unmute_user(message):
-    if message.reply_to_message and user_stats[message.reply_to_message.from_user.id] >= 50:
+    if message.reply_to_message and user_stats[message.chat.id][message.reply_to_message.from_user.id] >= 50:
         chat_id = message.chat.id
         user_id = message.reply_to_message.from_user.id
         bot.restrict_chat_member(chat_id, user_id, can_send_messages=True, can_send_media_messages=True,
